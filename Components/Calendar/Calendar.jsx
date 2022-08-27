@@ -8,11 +8,11 @@ import { isToday } from 'date-fns';
 import { isSameMonth } from 'date-fns';
 import { addMonths } from 'date-fns';
 import { subMonths } from 'date-fns';
-import { isFirstDayOfMonth } from 'date-fns';
-import { isLastDayOfMonth } from 'date-fns';
+// import { isFirstDayOfMonth } from 'date-fns';
+// import { isLastDayOfMonth } from 'date-fns';
 import { isWeekend } from 'date-fns';
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button } from 'react-native';
+import cn from 'react-native-classnames';
 
 const WEEK_DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -42,19 +42,28 @@ export default function Calendar() {
       <View style={styles.header}>
       <Button title="prev" onPress={()=>seqMonth(subMonths)}/>
         <View style={styles.month}>
-          <Text style={{fontSize: 20}}>{format(dataDay, 'MMMM yyyy')}</Text>
+          <Text style={{fontSize: 22}}>{format(dataDay, 'MMMM yyyy')}</Text>
         </View>
         <Button title="next" onPress={()=>seqMonth(addMonths)}/>
       </View>
       <View style={styles.dayContainer}>
         {WEEK_DAY_NAMES.map((name, index) =>
           <View key={index} style={styles.day}>
-            <Text style={{fontSize: 20}}>{name}</Text>
+            <Text style={cn(styles, 'dayText', {
+              weekend : index == 0 || index == 6,
+            })} >{name}</Text>
           </View>
         )}
         {dayMonthArray.map((day, index) =>
-          <View key={index} style={styles.day}>
-            <Text style={{fontSize: 20}}>{format(day, "d")}</Text>
+          <View key={index} style={cn(styles, 'day', {
+            toDay : isToday(day),
+            toDayNotThisMonth : isToday(day) && !isSameMonth(day, dataDay)
+          })}>
+            <Text style={cn(styles, 'dayText', {
+              weekend : isWeekend(day),
+              notThisMonth : !isSameMonth(day, dataDay),
+              notThisMonthWeekend : !isSameMonth(day, dataDay) && isWeekend(day)
+            })}>{format(day, "d")}</Text>
           </View>
         )}
       </View>
@@ -71,10 +80,11 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingTop: 30,
     height: "100%",
-    backgroundColor: "radial-gradient(circle, rgba(86,87,89,1) 0%, rgba(0,0,0,1) 100%)",
+    backgroundColor: "black",
+    justifyContent: "center"
   },
   header:{
-    flex: 1,
+    height: 70,
     backgroundColor: "pink",
     alignItems: "center",
     justifyContent: "center",
@@ -88,8 +98,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   dayContainer: {
-    flex: 11,
-    height: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
@@ -98,15 +106,34 @@ const styles = StyleSheet.create({
   day: {
     backgroundColor: "powderblue",
     width: `${(100/7)-0.5}%`,
-    height: `${(100/7)-0.4}%`,
+    height: 50,
     alignItems: "center",
     justifyContent: "center",
     borderStyle: "solid",
     borderWidth: 1.5,
     borderColor: "white",
     borderRadius: 5,
+    marginTop: 5,
+  },
+  toDay: {
+    borderColor: "rgb(30,144,255)",
+    borderWidth: 2.5
+  },
+  toDayNotThisMonth: {
+    borderColor: "rgb(0,191,255)",
+    borderWidth: 2.5
+  },
+  dayText: {
+    fontSize: 18
+  },
+  weekend: {
+    color: "red"
+  },
+  notThisMonthWeekend: {
+    color: "lightcoral"
+  },
+  notThisMonth: {
+    color: "gray"
   }
 });
 
-
-//14.28%
